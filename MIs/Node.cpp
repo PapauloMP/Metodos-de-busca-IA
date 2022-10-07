@@ -6,7 +6,7 @@
 #include <cmath>
 #include <iomanip>
 
-Node::Node(int state, int rank, bool* origin, bool* destination){
+Node::Node(int state, int rank, const bool* origin, const bool* destination, int isTemp, int rule){
     this->state = state;
     this->rank = rank;
     this->origin = new bool[6];
@@ -17,25 +17,22 @@ Node::Node(int state, int rank, bool* origin, bool* destination){
     }
     nextWidth = nullptr;
     nextDepth = nullptr;
+    this->temp = isTemp;
+    this->rule = rule;
 
     if(origin != nullptr && destination != nullptr) {
         for (int i = 0; i < 6; i++) {
             id += int((origin[i] * pow(2, i)) + (destination[i] * pow(2, i + 6)));
         }
     }
-
     if(id == 4032)
-        std::cout << "No solução! (estado: " << state << ")" << std::endl;
+        std::cout << "No solucao! (estado: " << state << ")" << std::endl;
 
-    for (int i = 0; i < 6; ++i) {
-        std::cout << this->origin[i];
-    }
-    std::cout << std::endl;
 }
 Node::~Node(){
-    //delete [] origin;
-    //delete [] destination;
-};
+    delete [] origin;
+    delete [] destination;
+}
 int Node::getState() const{
     return state;
 }
@@ -51,6 +48,9 @@ bool* Node::getDestination(){
 bool* Node::getOrigin() {
     return origin;
 }
+std::vector<Node *> Node::getNextNodes() {
+    return nextNodes;
+}
 void Node::setNextDepth(Node* p){
     nextDepth = p;
 }
@@ -63,24 +63,32 @@ Node* Node::getNextWidth() {
 Node* Node::getNextDepth() {
     return nextDepth;
 }
-
-
+Node *Node::getParent() {
+    return parent;
+}
+int Node::getTemp() {
+    return temp;
+}
+int Node::getRule() {
+    return rule;
+}
 void Node::setNextNodes(Node* node) {
     nextNodes.push_back(node);
-    if(this->getRank() == node->getRank()) //nunca ocorre
-        this->setNextWidth(node);
-    else if(this->getRank() <= node->getRank())
+    auto size = nextNodes.size();
+    node->parent = this;
+    if(size >= 2)
+        nextNodes[size - 2]->setNextWidth(node);
+    if(this->getNextDepth() == nullptr && this->getRank() <= node->getRank())
         this->setNextDepth(node);
-    else
-        std::cout<< "ERRO: no de rank superior" << std::endl;
+
 }
 
 void Node::listNextNodes() {
     std::vector<Node*>::iterator it;
+    std::cout << "Listando os proximos nos ao estado " << state << ":" << std::endl;
 
     for(it = nextNodes.begin(); it != nextNodes.end(); it++) {
-        bool* origin = (*it)->getOrigin();
-            std::cout << "state: " << std::setw(2) << (*it)->state << " - id: " << std::setw(4) << (*it)->id << " rank: " << (*it)->rank;
+        std::cout << "state: " << std::setw(2) << (*it)->state << " - id: " << std::setw(4) << (*it)->id << " rank: " << (*it)->rank;
         std:: cout << " origin: ";
         for (int i = 0; i < 6; i++) {
             std::cout << (*it)->origin[i];
@@ -91,22 +99,10 @@ void Node::listNextNodes() {
         }
         std::cout << std::endl;
     }
-
-    /*std::cout << "Listando os proximos nos ao estado " << state << ":" << std::endl;
-    for (int i = 0; i < nextNodes.size(); i++) {
-        std::cout << "state: "<< std::setw(2) << nextNodes[i]->state << " - id: " << std::setw(4) << nextNodes[i]->id << " rank: " << nextNodes[i]->rank;
-        std:: cout << " origin: ";
-        for (int j = 0; j < 6; j++) {
-            std::cout << nextNodes[i]->origin[j];
-        }
-        std:: cout << " destination: ";
-        for (int j = 0; j < 6; j++) {
-            std::cout << nextNodes[i]->destination[j];
-        }
-        std::cout << std::endl;
-    }*/
-
 }
+
+
+
 
 
 
