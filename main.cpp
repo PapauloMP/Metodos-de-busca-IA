@@ -5,11 +5,41 @@
 
 using namespace std;
 //int argc, char** argv
+void inputException(int option){
+    if (option != 1 && option != 2 && option != 3)
+        throw invalid_argument("Opcao invalida!");
+}
+
+int menu(){
+
+    int option;
+
+    cout << "MENU" << endl;
+    cout << "----" << endl;
+    cout << "[1] Busca em largura" << endl;
+    cout << "[2] Busca em profundidade" << endl;
+    cout << "[3] Busca backtracking" << endl;
+    cout << "Digite uma opcao: ";
+
+    cin >> option;
+    getchar();
+
+    try{
+        inputException(option);
+    }catch(invalid_argument& e){
+        std::cout << e.what() << std::endl;
+        menu();
+    }
+
+    return option;
+
+}
+
 int main() {
 
     auto start = chrono::steady_clock::now();
 
-    auto* arv = new SearchTree();
+    auto* arv = new SearchTree("texte0.txt");
     /*Node* n = arv->getRoot();
     arv->build(n);
     n->listNextNodes();
@@ -41,19 +71,21 @@ int main() {
     arv->build(n10);
     n10->listNextNodes();*/
 
+    stack<Node*> teste;
 
-    ofstream outputFile("texte.txt");
+    int option = menu();
+    switch(option){
+        case 1: teste = arv->breadthSearch();break;
+        case 2: teste = arv->deepFirstSearch();break;
+        case 3: teste = arv->backtrackingSearch();break;
 
-    arv->printStack();
+    }
+
+    arv->printStack(teste);
     arv->printOpened();
     arv->printClosed();
 
-    vector<Node*> teste = arv->breadthSearch(outputFile);
-//    cout << "Imprimindo busca em largura: " << endl;
-//    for(Node* n : teste){
-//        cout << n->getState() << endl;
-//    }
-
+    delete arv;
 
     auto end = chrono::steady_clock::now();
     auto elapsed  = end - start;

@@ -17,6 +17,7 @@ Node::Node(int state, int rank, const bool* origin, const bool* destination, int
     }
     nextWidth = nullptr;
     nextDepth = nullptr;
+    parent = nullptr;
     this->temp = isTemp;
     this->rule = rule;
 

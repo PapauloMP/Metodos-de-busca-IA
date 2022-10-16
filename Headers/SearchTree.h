@@ -10,24 +10,31 @@
 
 class SearchTree{
 public:
-    SearchTree();
+    SearchTree(const std::string& outputFile);
     ~SearchTree();
     int getTotalStates() const{return totalStates;};
     Node* getRoot(){return root;};
     //void insertNode(Node* anteriorState);
     void build(Node* node);
-    void printStack();
+    void printStack(std::stack<Node*>& solutionPath);
     void printOpened();
     void printClosed();
     bool search(int id, int rank);
-    std::vector<Node*> breadthSearch(std::ofstream& outputFile);
+    bool search(Node* node, int id);
+    void free(Node* node);
 
+    std::stack<Node*> breadthSearch();
+    std::stack<Node*> deepFirstSearch();
+    std::stack<Node*> backtrackingSearch();
 
 
 
 private:
     Node* root;
+    std::ofstream outputFile;
+    std::string edgeAttribute = "[color=red,penwidth=3.0] [fontsize=20]";
     int totalStates;
+
     std::stack<int> stackState;
     std::vector<int> listOpened;
     std::vector<int> listClosed;
@@ -35,6 +42,7 @@ private:
     bool applyRule(int rule, bool* x, bool* y, int* isTemp);
     bool auxSearch (Node* node, int& id, int& rank);
     std::vector<int> solveTempState(int temp);
+    void auxBacktracking(Node* node, std::vector<Node*>& searchResult, std::stack<Node*>& solutionPath, bool& solution);
 
 
 };
