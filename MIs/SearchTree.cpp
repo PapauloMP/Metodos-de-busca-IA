@@ -17,7 +17,7 @@ SearchTree::SearchTree(const std::string& outputFile) {
     }
     this->outputFile.open(outputFile);
 
-    root = new Node(totalStates++, 0, origin, destination, false, 0);
+    root = new Node(totalStates++, 0, origin, destination, 0, 0);
 
 }
 
@@ -171,34 +171,34 @@ bool SearchTree::applyRule(int rule, bool* x, bool* y, int* isTemp) {
             }
             break;
         case 4:
-            if (x[0]){     // levar pai vermelho
+            if (x[0] && !(y[3] && !y[2]) && !(y[5] && !y[4])){     // levar pai vermelho
                 if(x[1] && (x[2] || x[4]))
-                    *isTemp = 4;
+                    return false;
                 x[0] = false;
                 y[0] = true;
                 return true;
             }
             break;
         case 5:
-            if (x[2]){     // levar pai verde
+            if (x[2] && !(y[1] && !y[0]) && !(y[5] && !y[4])){     // levar pai verde
                 if(x[3] && (x[0] || x[4]))
-                    *isTemp = 5;
+                    return false;
                 x[2] = false;
                 y[2] = true;
                 return true;
             }
             break;
         case 6:
-            if (x[4]){     // levar pai azul
+            if (x[4] && !(y[1] && !y[0]) && !(y[3] && !y[2])){     // levar pai azul
                 if(x[5] && (x[0] || x[2]))
-                    *isTemp = 6;
+                    return false;
                 x[4] = false;
                 y[4] = true;
                 return true;
             }
             break;
         case 7:
-            if (x[0] && x[1]){     // levar pai vermelho e filho vermelho
+            if (x[0] && x[1] && !(y[3] && !y[2]) && !(y[5] && !y[4])){     // levar pai vermelho e filho vermelho
                 x[0] = false;
                 x[1] = false;
                 y[0] = true;
@@ -207,7 +207,7 @@ bool SearchTree::applyRule(int rule, bool* x, bool* y, int* isTemp) {
             }
             break;
         case 8:
-            if (x[2] && x[3]){     // levar pai verde e filho verde
+            if (x[2] && x[3] && !(y[1] && !y[0]) && !(y[5] && !y[4])){     // levar pai verde e filho verde
                 x[2] = false;
                 x[3] = false;
                 y[2] = true;
@@ -216,7 +216,7 @@ bool SearchTree::applyRule(int rule, bool* x, bool* y, int* isTemp) {
             }
             break;
         case 9:
-            if (x[4] && x[5]){     // levar pai azul e filho azul
+            if (x[4] && x[5] && !(y[1] && !y[0]) && !(y[3] && !y[2])){     // levar pai azul e filho azul
                 x[4] = false;
                 x[5] = false;
                 y[4] = true;
@@ -274,6 +274,10 @@ bool SearchTree::applyRule(int rule, bool* x, bool* y, int* isTemp) {
 }
 
 void SearchTree::printStack(std::stack<Node*>& solutionPath) {
+    if(solutionPath.empty()){
+        return;
+    }
+
     std::cout << "Imprimindo solucao: " << std::endl;
 
     while(!solutionPath.empty()){
@@ -288,19 +292,23 @@ void SearchTree::printStack(std::stack<Node*>& solutionPath) {
 }
 
 void SearchTree::printOpened() {
-    std::cout << "Imprimindo lista de abertos:" << std::endl;
-    for (int i = 0; i < listOpened.size(); i++) {
-        std::cout << listOpened[i] << " ";
+    if(!listOpened.empty()){
+        std::cout << "Imprimindo lista de abertos:" << std::endl;
+        for (int i = 0; i < listOpened.size(); i++) {
+            std::cout << listOpened[i] << " ";
+        }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
 }
 
 void SearchTree::printClosed() {
-    std::cout << "Imprimindo lista de fechados:" << std::endl;
-    for (int i = 0; i < listClosed.size(); i++) {
-        std::cout << listClosed[i] << " ";
+    if(!listClosed.empty()){
+        std::cout << "Imprimindo lista de fechados:" << std::endl;
+        for (int i = 0; i < listClosed.size(); i++) {
+            std::cout << listClosed[i] << " ";
+        }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
 }
 
 std::vector<int> SearchTree::solveTempState(int temp) {
@@ -326,18 +334,6 @@ std::vector<int> SearchTree::solveTempState(int temp) {
             applicableRules.push_back(9);
             applicableRules.push_back(10);
             applicableRules.push_back(11);
-            break;
-        }
-        case 4: {
-            applicableRules.push_back(7);
-            break;
-        }
-        case 5: {
-            applicableRules.push_back(8);
-            break;
-        }
-        case 6: {
-            applicableRules.push_back(9);
             break;
         }
     }
@@ -387,12 +383,6 @@ std::stack<Node*> SearchTree::breadthSearch() {
         }
     }
 
-    std::cout << "Imprimindo busca em largura: " << std::endl; // ??
-    for(Node* n : searchResult){
-        std::cout << n->getState() << " ";
-    }
-    std::cout << std::endl;
-
     ///organizando a árvore pelo rank
     std::sort(searchResult.begin(), searchResult.end(), compareNodes);
 
@@ -419,7 +409,7 @@ std::stack<Node*> SearchTree::deepFirstSearch() {
     std::vector<Node*> searchResult;
     std::stack<Node*> stack;
     std::stack<Node*> solutionPath;
-    bool solution = false;
+    //bool solution = false;
 
     searchResult.push_back(root);
     stack.push(root);
@@ -427,7 +417,7 @@ std::stack<Node*> SearchTree::deepFirstSearch() {
     Node* node;
     Node* next;
 
-    while(!stack.empty()) {
+    while(!stack.empty()) { //&& !solution
         node = stack.top();
         stack.pop();
         build(node);
@@ -441,9 +431,9 @@ std::stack<Node*> SearchTree::deepFirstSearch() {
             outputFile << "\t" << node->getState() << " -> " << next->getState() << ";" << std::endl;
             if (next->getId() == 4032) {
                 Node *x = next;
+                //solution = true;
                 while (x != nullptr) {
                     solutionPath.push(x);
-                    solution = true;
                     if (x->getParent() != nullptr) {
                         outputFile << "\t" << x->getParent()->getState() << " -> " << x->getState() << " [label = R";
                         outputFile << x->getRule() << "] " << edgeAttribute << ";" << std::endl;
@@ -480,18 +470,6 @@ std::stack<Node*> SearchTree::backtrackingSearch() {
     std::vector<Node*> searchResult;
 
     auxBacktracking(root, searchResult, solutionPath, solution);
-
-    /*std::stack<Node*> s2 = solutionPath;
-    std::cout << "Imprimindo solucao do Backtrack:" << std::endl;
-    while(!s2.empty()){
-        Node* node = s2.top();
-        s2.pop();
-        for (int i = 0; i < 6; ++i) {
-            std::cout << node->getDestination()[i];
-        }
-        std::cout << std::endl;
-    }*/
-
 
     ///organizando a árvore pelo rank
     std::sort(searchResult.begin(), searchResult.end(), compareNodes);

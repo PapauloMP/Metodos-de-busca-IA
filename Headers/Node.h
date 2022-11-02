@@ -9,7 +9,7 @@
 class Node{
 
 public:
-    Node(int state, int rank, const bool* origin, const bool* destination, int isTemp, int rule);
+    Node(int state, int rank, const bool* origin, const bool* destination, int temp, int rule);
     ~Node();
 
     void setNextWidth(Node* p);

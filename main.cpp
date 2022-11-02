@@ -4,9 +4,9 @@
 #include "chrono"
 
 using namespace std;
-//int argc, char** argv
+
 void inputException(int option){
-    if (option != 1 && option != 2 && option != 3)
+    if (option != 1 && option != 2 && option != 3 && option != 0)
         throw invalid_argument("Opcao invalida!");
 }
 
@@ -19,6 +19,7 @@ int menu(){
     cout << "[1] Busca em largura" << endl;
     cout << "[2] Busca em profundidade" << endl;
     cout << "[3] Busca backtracking" << endl;
+    cout << "[0] Sair" << endl;
     cout << "Digite uma opcao: ";
 
     cin >> option;
@@ -37,60 +38,57 @@ int menu(){
 
 int main() {
 
-    auto start = chrono::steady_clock::now();
-
-    auto* arv = new SearchTree("texte0.txt");
-    /*Node* n = arv->getRoot();
-    arv->build(n);
-    n->listNextNodes();
-    Node* n2 = n->nextNodes[8];
-    arv->build(n2);
-    n2->listNextNodes();
-    Node* n3 = n2->nextNodes[0];
-    arv->build(n3);
-    n3->listNextNodes();
-    Node* n4 = n3->nextNodes[1];
-    arv->build(n4);
-    n4->listNextNodes();
-    Node* n5 = n4->nextNodes[0];
-    arv->build(n5);
-    n5->listNextNodes();
-    Node* n6 = n5->nextNodes[2];
-    arv->build(n6);
-    n6->listNextNodes();
-    Node* n7 = n6->nextNodes[0];
-    arv->build(n7);
-    n7->listNextNodes();
-    Node* n8 = n7->nextNodes[0];
-    arv->build(n8);
-    n8->listNextNodes();
-    Node* n9 = n8->nextNodes[0];
-    arv->build(n9);
-    n9->listNextNodes();
-    Node* n10 = n9->nextNodes[1];
-    arv->build(n10);
-    n10->listNextNodes();*/
-
+    auto* arv = new SearchTree("outputFile.txt");
     stack<Node*> teste;
-
     int option = menu();
-    switch(option){
-        case 1: teste = arv->breadthSearch();break;
-        case 2: teste = arv->deepFirstSearch();break;
-        case 3: teste = arv->backtrackingSearch();break;
 
+    chrono::steady_clock::time_point start;
+    chrono::steady_clock::time_point end;
+    chrono::steady_clock::duration elapsed;
+    switch(option){
+        case 0:{
+            start = chrono::steady_clock::now();
+            end = chrono::steady_clock::now();
+            elapsed = end - start;
+            break;
+        }
+        case 1:{
+            start = chrono::steady_clock::now();
+
+            teste = arv->breadthSearch();
+
+            end = chrono::steady_clock::now();
+            elapsed = end - start;
+            break;
+        }
+        case 2:{
+            start = chrono::steady_clock::now();
+
+            teste = arv->deepFirstSearch();
+
+            end = chrono::steady_clock::now();
+            elapsed  = end - start;
+            break;
+        }
+        case 3:{
+            start = chrono::steady_clock::now();
+
+            teste = arv->backtrackingSearch();
+
+            end = chrono::steady_clock::now();
+            elapsed  = end - start;
+            break;
+        }
     }
 
     arv->printStack(teste);
     arv->printOpened();
     arv->printClosed();
 
+    cout << endl << "TEMPO DE PROCESSAMENTO TOTAL: " <<  chrono::duration_cast<chrono::nanoseconds>(elapsed).count();
+    cout << "ns" << endl;
+
     delete arv;
-
-    auto end = chrono::steady_clock::now();
-    auto elapsed  = end - start;
-
-    cout << endl << "TEMPO DE PROCESSAMENTO TOTAL: " <<  chrono::duration_cast<chrono::nanoseconds>(elapsed).count() << "ns" << endl;
 
     return 0;
 }
