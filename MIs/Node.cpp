@@ -1,6 +1,3 @@
-//
-// Created by Marcos Paulo on 27/09/2022.
-//
 #include <iostream>
 #include "../Headers/Node.h"
 #include <cmath>
@@ -26,9 +23,6 @@ Node::Node(int state, int rank, const bool* origin, const bool* destination, int
             id += int((origin[i] * pow(2, i)) + (destination[i] * pow(2, i + 6)));
         }
     }
-    if(id == 4032)
-        std::cout << "No solucao! (estado: " << state << ")" << std::endl;
-
 }
 Node::~Node(){
     delete [] origin;
@@ -89,7 +83,7 @@ void Node::listNextNodes() {
     std::cout << "Listando os proximos nos ao estado " << state << ":" << std::endl;
 
     for(it = nextNodes.begin(); it != nextNodes.end(); it++) {
-        std::cout << "state: " << std::setw(2) << (*it)->state << " - id: " << std::setw(4) << (*it)->id << " rank: " << (*it)->rank;
+        std::cout << "state: " << std::setw(5) << (*it)->state << " - id: " << std::setw(4) << (*it)->id << " rank: " << (*it)->rank;
         std:: cout << " origin: ";
         for (int i = 0; i < 6; i++) {
             std::cout << (*it)->origin[i];

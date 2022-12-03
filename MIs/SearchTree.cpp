@@ -1,6 +1,3 @@
-//
-// Created by Marcos Paulo on 27/09/2022.
-//
 #include "../Headers/SearchTree.h"
 #include <iostream>
 #include <queue>
@@ -36,10 +33,9 @@ void SearchTree::free(Node* node){
     }
 }
 
-bool SearchTree::search(Node* node, int id) { //verifica ciclo (para quando quiser imprimir a arvore inteira)
-
+bool SearchTree::search(Node* node, int id, int rank) { //verifica ciclo (para quando quiser imprimir a arvore inteira)
     while(node != nullptr){
-        if(node->getId() == id){
+        if(node->getId() == id && (node->getRank() + rank) % 2 == 0){
             return true;
         }
         node = node->getParent();
@@ -131,13 +127,7 @@ void SearchTree::build(Node* node) {
 
             }
         }
-
     }
-
-    if(cont == 0){
-        std::cout << "No folha de estado invalido (estado: " << node->getState() << ")" << std::endl;
-    }
-
 }
 
 bool SearchTree::applyRule(int rule, bool* x, bool* y, int* isTemp) {
@@ -275,15 +265,18 @@ bool SearchTree::applyRule(int rule, bool* x, bool* y, int* isTemp) {
 
 void SearchTree::printStack(std::stack<Node*>& solutionPath) {
     if(solutionPath.empty()){
+        std::cout << "Solucao nao encontrada" << std::endl;
         return;
     }
 
-    std::cout << "Imprimindo solucao: " << std::endl;
-
+    std::cout << "Imprimindo solucao(oes): ";
     while(!solutionPath.empty()){
+        if(solutionPath.top()->getState() == 0){
+            std::cout << std::endl;
+        }
         Node* node = solutionPath.top();
         solutionPath.pop();
-        if(!solutionPath.empty())
+        if(!solutionPath.empty() && solutionPath.top()->getRule() != 0)
             std::cout << node->getState() << "--R" << solutionPath.top()->getRule() << "->";
         else
             std::cout << node->getState();
@@ -354,9 +347,9 @@ std::stack<Node*> SearchTree::breadthSearch() {
     searchResult.push_back(root);
     queue.push(root);
 
-    bool solution = false;
+    //bool solution = false;
 
-    while(!solution && !queue.empty()){
+    while(!queue.empty()){ // && !solution, caso queira apenas uma solução
         Node* node = queue.front();
         Node* anterior = node;
         queue.pop();
@@ -367,18 +360,17 @@ std::stack<Node*> SearchTree::breadthSearch() {
             searchResult.push_back(n);
             anterior = n;
             if(n->getId() == 4032) {
-                solution = true;
+                //solution = true;
                 Node* x = n;
                 while(x != nullptr) {
                     solutionPath.push(x);
-                    solution = true;
                     if(x->getParent() != nullptr) {
                         outputFile << "\t" << x->getParent()->getState() << " -> " << x->getState() << " [label = R";
                         outputFile << x->getRule() << "] " << edgeAttribute << ";" << std::endl;
                     }
                     x = x->getParent();
                 }
-                break;
+                //break;
             }
         }
     }
@@ -509,10 +501,10 @@ void SearchTree::auxBacktracking(Node* node, std::vector<Node*>& searchResult, s
         outputFile << "\t" << node->getState() << " -> ";
     build(node);
     for (Node* n : node->getNextNodes()){ //CRITERIO
-        if(!solution) { // para o backtracking apos achar a primeira solução
+        //if(!solution) { // para o backtracking apos achar a primeira solução
             outputFile << n->getState() << std::endl;
             auxBacktracking(n, searchResult, solutionPath, solution);
-        }
+        //}
     }
 
 }

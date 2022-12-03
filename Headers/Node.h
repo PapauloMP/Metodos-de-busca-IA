@@ -1,7 +1,3 @@
-//
-// Created by Marcos Paulo on 27/09/2022.
-//
-
 #ifndef TRABALHOIA_GRUPO9_NODE_H
 #define TRABALHOIA_GRUPO9_NODE_H
 #include <vector>

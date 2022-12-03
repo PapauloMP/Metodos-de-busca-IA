@@ -1,7 +1,3 @@
-//
-// Created by Marcos Paulo on 27/09/2022.
-//
-
 #ifndef TRABALHOIA_GRUPO9_SEARCHTREE_H
 #define TRABALHOIA_GRUPO9_SEARCHTREE_H
 #include "../Headers/Node.h"
@@ -14,13 +10,13 @@ public:
     ~SearchTree();
     int getTotalStates() const{return totalStates;};
     Node* getRoot(){return root;};
-    //void insertNode(Node* anteriorState);
+
     void build(Node* node);
     void printStack(std::stack<Node*>& solutionPath);
     void printOpened();
     void printClosed();
     bool search(int id, int rank);
-    bool search(Node* node, int id);
+    bool search(Node* node, int id, int rank);
     void free(Node* node);
 
     std::stack<Node*> breadthSearch();

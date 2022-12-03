@@ -1,0 +1,12 @@
+R1 = levar filho vermelho
+R2 = levar filho verde
+R3 = levar filho azul
+R4 = levar pai vermelho
+R5 = levar pai verde
+R6 = levar pai azul
+R7 = levar pai vermelho e filho vermelho
+R8 = levar pai verde e filho verde
+R9 = levar pai azul e filho azul
+R10 = levar filho azul e filho verde
+R11 = levar filho azul e filho vermelho
+R12 = levar filho verde e filho vermelho

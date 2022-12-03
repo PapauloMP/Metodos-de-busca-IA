@@ -46,12 +46,6 @@ int main() {
     chrono::steady_clock::time_point end;
     chrono::steady_clock::duration elapsed;
     switch(option){
-        case 0:{
-            start = chrono::steady_clock::now();
-            end = chrono::steady_clock::now();
-            elapsed = end - start;
-            break;
-        }
         case 1:{
             start = chrono::steady_clock::now();
 
@@ -77,6 +71,12 @@ int main() {
 
             end = chrono::steady_clock::now();
             elapsed  = end - start;
+            break;
+        }
+        default:{
+            start = chrono::steady_clock::now();
+            end = chrono::steady_clock::now();
+            elapsed = end - start;
             break;
         }
     }
