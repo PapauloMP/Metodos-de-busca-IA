@@ -8,6 +8,7 @@ Node::Node(int state, int rank, const bool* origin, const bool* destination, int
     this->rank = rank;
     this->origin = new bool[6];
     this->destination = new bool[6];
+    this->id = 0;
     for (int i = 0; i < 6; i++) {
         this->origin[i] = origin[i];
         this->destination[i] = destination[i];

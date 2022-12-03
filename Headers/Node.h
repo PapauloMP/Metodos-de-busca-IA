@@ -31,7 +31,7 @@ private:
     Node* nextDepth;
     Node* parent;
     int state;
-    int id{};
+    int id;
     int rank;
     int temp;
     /** origin e destination são dois vetores de seis posições, sendo cada uma específica para um único pinguim na ordem:
