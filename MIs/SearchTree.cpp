@@ -63,13 +63,12 @@ bool SearchTree::auxSearch(Node* node, int& id, int& rank){
 void SearchTree::build(Node* node) {
     listClosed.push_back(node->getState());
 
-    bool* orig = node->getOrigin();
-    bool* dest = node->getDestination();
-    int cont = 0;
     if (node->getId() == 4032) {
         std::cout << "No solucao! (estado: "<< node->getState() << ")" << std::endl;
         return;
     }
+    bool* orig = node->getOrigin();
+    bool* dest = node->getDestination();
     // verificar estagio temporario
     if (node->getTemp() == 0) {
         for (int i = 1; i <= 12; i++) {
@@ -88,7 +87,6 @@ void SearchTree::build(Node* node) {
                 if (!search(newNode->getId(), newNode->getRank())) {
                     listOpened.push_back(newNode->getState());
                     node->setNextNodes(newNode);
-                    cont++;
                 } else {
                     delete newNode;
                     totalStates--;
@@ -119,7 +117,6 @@ void SearchTree::build(Node* node) {
                 if (!search(newNode->getId(), newNode->getRank())) {
                     listOpened.push_back(newNode->getState());
                     node->setNextNodes(newNode);
-                    cont++;
                 } else {
                     delete newNode;
                     totalStates--;
