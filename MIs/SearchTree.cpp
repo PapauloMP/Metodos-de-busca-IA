@@ -100,7 +100,7 @@ void SearchTree::build(Node* node) {
         int isTemp = 0;
         int rule;
 
-        for (int i = 0; i < rules.size(); i++) {
+        for (size_t i = 0; i < rules.size(); i++) {
 
             rule = rules[i];
 
@@ -284,7 +284,7 @@ void SearchTree::printStack(std::stack<Node*>& solutionPath) {
 void SearchTree::printOpened() {
     if(!listOpened.empty()){
         std::cout << "Imprimindo lista de abertos:" << std::endl;
-        for (int i = 0; i < listOpened.size(); i++) {
+        for (size_t i = 0; i < listOpened.size(); i++) {
             std::cout << listOpened[i] << " ";
         }
         std::cout << std::endl;
@@ -294,7 +294,7 @@ void SearchTree::printOpened() {
 void SearchTree::printClosed() {
     if(!listClosed.empty()){
         std::cout << "Imprimindo lista de fechados:" << std::endl;
-        for (int i = 0; i < listClosed.size(); i++) {
+        for (size_t i = 0; i < listClosed.size(); i++) {
             std::cout << listClosed[i] << " ";
         }
         std::cout << std::endl;
@@ -376,7 +376,7 @@ std::stack<Node*> SearchTree::breadthSearch() {
     std::sort(searchResult.begin(), searchResult.end(), compareNodes);
 
     outputFile << "\t{rank = same";
-    for(int i = 0; i < searchResult.size(); i++){
+    for(size_t i = 0; i < searchResult.size(); i++){
         if (i != 0){
             if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
                 outputFile << "};" <<  std::endl << "\t{rank = same";
@@ -437,7 +437,7 @@ std::stack<Node*> SearchTree::deepFirstSearch() {
     std::sort(searchResult.begin(), searchResult.end(), compareNodes);
 
     outputFile << "\t{rank = same";
-    for(int i = 0; i < searchResult.size(); i++){
+    for(size_t i = 0; i < searchResult.size(); i++){
         if (i != 0){
             if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
                 outputFile << "};" <<  std::endl << "\t{rank = same";
@@ -464,7 +464,7 @@ std::stack<Node*> SearchTree::backtrackingSearch() {
     std::sort(searchResult.begin(), searchResult.end(), compareNodes);
 
     outputFile << "\t{rank = same";
-    for(int i = 0; i < searchResult.size(); i++){
+    for(size_t i = 0; i < searchResult.size(); i++){
         if (i != 0){
             if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
                 outputFile << "};" <<  std::endl << "\t{rank = same";
