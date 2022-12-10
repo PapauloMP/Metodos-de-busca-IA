@@ -22,6 +22,9 @@ public:
     std::stack<Node*> breadthSearch();
     std::stack<Node*> deepFirstSearch();
     std::stack<Node*> backtrackingSearch();
+    std::stack<Node*> greedySearch();
+    std::stack<Node*> uniformSearch();
+    std::stack<Node*> AStarSearch();
 
 
 

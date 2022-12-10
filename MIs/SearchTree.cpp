@@ -505,3 +505,231 @@ void SearchTree::auxBacktracking(Node* node, std::vector<Node*>& searchResult, s
     }
 
 }
+
+
+struct compareGreedy{
+    bool operator() (Node* x, Node* y) {
+        return x->getId() < y->getId();
+    }
+};
+
+std::stack<Node*> SearchTree::greedySearch() {
+    outputFile << "strict digraph buscaGulosa {" << std::endl;
+    outputFile << "\trankdir=\"TB\";" << std::endl;
+
+    //Na busca gulosa usa-se uma fila de prioridade (maxHeap) na qual a prioridade é o id do nó.
+    //Logo esse método escolhe, a cada iteração, o nó cujo id mais se aproxima do objetivo (4032).
+
+    std::vector<Node*> searchResult;
+    std::priority_queue<Node*, std::vector<Node*>, compareGreedy> queue; //maxHeap
+    std::stack<Node*> solutionPath;
+    searchResult.push_back(root);
+    queue.push(root);
+
+    bool solution = false;
+
+    while(!solution && !queue.empty()){
+        Node* node = queue.top();
+        queue.pop();
+        searchResult.push_back(node);
+        build(node);
+        for(Node* n : node->getNextNodes()){ //coloca os filhos na fila de prioridade
+            queue.push(n);
+            searchResult.push_back(n);
+        }
+        if(node->getId() == 4032){
+            Node* x = node;
+            solution = true;
+            while (x != nullptr) {
+                solutionPath.push(x);
+                if (x->getParent() != nullptr) {
+                    outputFile << "\t" << x->getParent()->getState() << " -> " << x->getState() << " [label = R";
+                    outputFile << x->getRule() << "] " << edgeAttribute << ";" << std::endl;
+                }
+                x = x->getParent();
+            }
+        }
+        else{
+            outputFile << "\t" << node->getState() << " -> " << queue.top()->getState() << ";" << std::endl;
+        }
+    }
+
+    ///organizando a árvore pelo rank
+    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
+
+    outputFile << "\t{rank = same";
+    for(int i = 0; i < searchResult.size(); i++){
+        if (i != 0){
+            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
+                outputFile << "};" <<  std::endl << "\t{rank = same";
+        }
+        outputFile << "; "<< searchResult[i]->getState();
+    }
+
+
+    outputFile << "};" << std::endl << "}";
+
+    return solutionPath;
+}
+
+struct QueueNode{
+    QueueNode(Node* node, int value){
+        this->node = node;
+        this->value = value;
+    }
+    Node* node;
+    int value;
+};
+
+struct compareUniform{
+    bool operator() (const QueueNode& x, const QueueNode& y) {
+        return x.value > y.value;
+    }
+};
+
+std::stack<Node*> SearchTree::uniformSearch() {
+    outputFile << "strict digraph buscaOrdenada {" << std::endl;
+    outputFile << "\trankdir=\"TB\";" << std::endl;
+
+    //Na busca ordenada usa-se uma fila de prioridade (minHeap) na qual a prioridade(custo)
+    //é dado pelo somatório das regras de todos os nós anteriores. Logo esse método escolhe,
+    //a cada iteração, o nó de caminho mais curto.
+
+    std::vector<Node*> searchResult;
+    std::priority_queue<QueueNode, std::vector<QueueNode>, compareUniform> queue;
+    std::stack<Node*> solutionPath;
+    searchResult.push_back(root);
+
+    struct QueueNode queueRoot(root, 0);
+    queue.push(queueRoot);
+
+    bool solution = false;
+
+    while(!solution && !queue.empty()){
+        QueueNode qnode = queue.top();
+        queue.pop();
+        searchResult.push_back(qnode.node);
+        build(qnode.node);
+        for(Node* n : qnode.node->getNextNodes()){ //coloca os filhos na fila de prioridade
+            int value = qnode.value + n->getRule();
+            struct QueueNode queueNodeN(n, value);
+            queue.push(queueNodeN);
+        }
+        if(qnode.node->getId() == 4032){
+            Node* x = qnode.node;
+            solution = true;
+            while (x != nullptr) {
+                solutionPath.push(x);
+                if (x->getParent() != nullptr) {
+                    outputFile << "\t" << x->getParent()->getState() << " -> " << x->getState() << " [label = R";
+                    outputFile << x->getRule() << "] " << edgeAttribute << ";" << std::endl;
+                }
+                x = x->getParent();
+            }
+        }
+        else{
+            outputFile << "\t" << qnode.node->getState() << " -> " << queue.top().node->getState() << ";" << std::endl;
+        }
+    }
+
+    ///organizando a árvore pelo rank
+    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
+
+    outputFile << "\t{rank = same";
+    for(int i = 0; i < searchResult.size(); i++){
+        if (i != 0){
+            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
+                outputFile << "};" <<  std::endl << "\t{rank = same";
+        }
+        outputFile << "; "<< searchResult[i]->getState();
+    }
+
+
+    outputFile << "};" << std::endl << "}";
+
+    return solutionPath;
+}
+
+struct compareAStar{
+    int COST_CONSTANT = 80;
+    int HEURISTIC_CONSTANT = -1;
+    bool operator() (const QueueNode& x, const QueueNode& y) {
+        //f(x) = A*g(x) + B*h(x)
+        int xvalue = (COST_CONSTANT*x.value + HEURISTIC_CONSTANT*x.node->getId());
+        int yvalue = (COST_CONSTANT*y.value + HEURISTIC_CONSTANT*y.node->getId());
+        return xvalue > yvalue;
+    }
+};
+
+std::stack<Node*> SearchTree::AStarSearch() {
+    outputFile << "strict digraph buscaAStar {" << std::endl;
+    outputFile << "\trankdir=\"TB\";" << std::endl;
+
+    //Na busca A* usa-se uma fila de prioridade (minHeap) na qual a prioridade(custo)
+    //é dado pela função: f(x) = A*g(x) + B*h(x), onde:
+    //
+    //x = nó;
+    //A = constante de custo
+    //g(x) = custo, dado pelo somatório das regras do nós anteriores
+    //B = constante heurística
+    //h(x) = heurística, dado pelo inverso do id do nó, para não contrapor a prioridade de minHeap
+    //
+    //É evidente que caso a constante A tenda a zero, a busca tende a ser equivalente à gulosa
+    //já se B se aproxima de zero, a busca se assemelha à ordenada. Sendo assim, os valores
+    //das constantes foram empiricamente determinados de forma a balancear a equação e evitar que
+    //uma função tenha mais peso que a outra.
+
+    std::vector<Node*> searchResult;
+    std::priority_queue<QueueNode, std::vector<QueueNode>, compareAStar> queue;
+    std::stack<Node*> solutionPath;
+    searchResult.push_back(root);
+
+    struct QueueNode queueRoot(root, 0);
+    queue.push(queueRoot);
+
+    bool solution = false;
+
+    while(!solution && !queue.empty()){
+        QueueNode qnode = queue.top();
+        queue.pop();
+        searchResult.push_back(qnode.node);
+        build(qnode.node);
+        for(Node* n : qnode.node->getNextNodes()){ //coloca os filhos na fila de prioridade
+            int value = qnode.value + n->getRule();
+            struct QueueNode queueNodeN(n, value);
+            queue.push(queueNodeN);
+        }
+        if(qnode.node->getId() == 4032){
+            Node* x = qnode.node;
+            solution = true;
+            while (x != nullptr) {
+                solutionPath.push(x);
+                if (x->getParent() != nullptr) {
+                    outputFile << "\t" << x->getParent()->getState() << " -> " << x->getState() << " [label = R";
+                    outputFile << x->getRule() << "] " << edgeAttribute << ";" << std::endl;
+                }
+                x = x->getParent();
+            }
+        }
+        else{
+            outputFile << "\t" << qnode.node->getState() << " -> " << queue.top().node->getState() << ";" << std::endl;
+        }
+    }
+
+    ///organizando a árvore pelo rank
+    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
+
+    outputFile << "\t{rank = same";
+    for(int i = 0; i < searchResult.size(); i++){
+        if (i != 0){
+            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
+                outputFile << "};" <<  std::endl << "\t{rank = same";
+        }
+        outputFile << "; "<< searchResult[i]->getState();
+    }
+
+
+    outputFile << "};" << std::endl << "}";
+
+    return solutionPath;
+}
