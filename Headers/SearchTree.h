@@ -42,7 +42,7 @@ private:
     bool auxSearch (Node* node, int& id, int& rank);
     std::vector<int> solveTempState(int temp);
     void auxBacktracking(Node* node, std::vector<Node*>& searchResult, std::stack<Node*>& solutionPath, bool& solution);
-
+    void rankDot(std::vector<Node*>& searchResult);
 
 };
 #endif //TRABALHOIA_GRUPO9_SEARCHTREE_H

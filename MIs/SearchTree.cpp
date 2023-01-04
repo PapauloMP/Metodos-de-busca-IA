@@ -334,6 +334,22 @@ bool compareNodes(Node* x, Node* y){
     return x->getRank() < y->getRank();
 }
 
+void SearchTree::rankDot(std::vector<Node*>& searchResult){
+    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
+
+    outputFile << "\t{rank = same";
+    for(size_t i = 0; i < searchResult.size(); i++){
+        if (i != 0){
+            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
+                outputFile << "};" <<  std::endl << "\t{rank = same";
+        }
+        outputFile << "; "<< searchResult[i]->getState();
+    }
+
+
+    outputFile << "};" << std::endl << "}";
+}
+
 std::stack<Node*> SearchTree::breadthSearch() {
     outputFile << "strict digraph buscaEmLargura {" << std::endl;
     outputFile << "\trankdir=\"TB\";" << std::endl;
@@ -373,19 +389,7 @@ std::stack<Node*> SearchTree::breadthSearch() {
     }
 
     ///organizando a árvore pelo rank
-    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
-
-    outputFile << "\t{rank = same";
-    for(size_t i = 0; i < searchResult.size(); i++){
-        if (i != 0){
-            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
-                outputFile << "};" <<  std::endl << "\t{rank = same";
-        }
-        outputFile << "; "<< searchResult[i]->getState();
-    }
-
-
-    outputFile << "};" << std::endl << "}";
+    rankDot(searchResult);
 
     return solutionPath;
 }
@@ -434,18 +438,7 @@ std::stack<Node*> SearchTree::deepFirstSearch() {
     }
 
     ///organizando a árvore pelo rank
-    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
-
-    outputFile << "\t{rank = same";
-    for(size_t i = 0; i < searchResult.size(); i++){
-        if (i != 0){
-            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
-                outputFile << "};" <<  std::endl << "\t{rank = same";
-        }
-        outputFile << "; "<< searchResult[i]->getState();
-    }
-
-    outputFile << "};" << std::endl << "}";
+    rankDot(searchResult);
 
     return solutionPath;
 }
@@ -461,18 +454,7 @@ std::stack<Node*> SearchTree::backtrackingSearch() {
     auxBacktracking(root, searchResult, solutionPath, solution);
 
     ///organizando a árvore pelo rank
-    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
-
-    outputFile << "\t{rank = same";
-    for(size_t i = 0; i < searchResult.size(); i++){
-        if (i != 0){
-            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
-                outputFile << "};" <<  std::endl << "\t{rank = same";
-        }
-        outputFile << "; "<< searchResult[i]->getState();
-    }
-
-    outputFile << "};" << std::endl << "}";
+    rankDot(searchResult);
 
     return solutionPath;
 
@@ -494,16 +476,16 @@ void SearchTree::auxBacktracking(Node* node, std::vector<Node*>& searchResult, s
         }
         return;
     }
-    else
-        outputFile << "\t" << node->getState() << " -> ";
-    build(node);
-    for (Node* n : node->getNextNodes()){ //CRITERIO
-        //if(!solution) { // para o backtracking apos achar a primeira solução
+    else {
+        build(node);
+        for (Node *n: node->getNextNodes()) { //CRITERIO
+            if(!solution) { // para o backtracking apos achar a primeira solução
+            outputFile << "\t" << node->getState() << " -> ";
             outputFile << n->getState() << std::endl;
             auxBacktracking(n, searchResult, solutionPath, solution);
-        //}
+            }
+        }
     }
-
 }
 
 
@@ -523,12 +505,11 @@ std::stack<Node*> SearchTree::greedySearch() {
     std::vector<Node*> searchResult;
     std::priority_queue<Node*, std::vector<Node*>, compareGreedy> queue; //maxHeap
     std::stack<Node*> solutionPath;
-    searchResult.push_back(root);
     queue.push(root);
 
-    bool solution = false;
+    //bool solution = false;
 
-    while(!solution && !queue.empty()){
+    while(!queue.empty()){ //&& !solution
         Node* node = queue.top();
         queue.pop();
         searchResult.push_back(node);
@@ -539,7 +520,7 @@ std::stack<Node*> SearchTree::greedySearch() {
         }
         if(node->getId() == 4032){
             Node* x = node;
-            solution = true;
+            //solution = true;
             while (x != nullptr) {
                 solutionPath.push(x);
                 if (x->getParent() != nullptr) {
@@ -555,19 +536,7 @@ std::stack<Node*> SearchTree::greedySearch() {
     }
 
     ///organizando a árvore pelo rank
-    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
-
-    outputFile << "\t{rank = same";
-    for(int i = 0; i < searchResult.size(); i++){
-        if (i != 0){
-            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
-                outputFile << "};" <<  std::endl << "\t{rank = same";
-        }
-        outputFile << "; "<< searchResult[i]->getState();
-    }
-
-
-    outputFile << "};" << std::endl << "}";
+    rankDot(searchResult);
 
     return solutionPath;
 }
@@ -598,15 +567,14 @@ std::stack<Node*> SearchTree::uniformSearch() {
     std::vector<Node*> searchResult;
     std::priority_queue<QueueNode, std::vector<QueueNode>, compareUniform> queue;
     std::stack<Node*> solutionPath;
-    searchResult.push_back(root);
 
     struct QueueNode queueRoot(root, 0);
     queue.push(queueRoot);
 
-    bool solution = false;
+    //bool solution = false;
 
-    while(!solution && !queue.empty()){
-        QueueNode qnode = queue.top();
+    while(!queue.empty()){ // && !solution
+                QueueNode qnode = queue.top();
         queue.pop();
         searchResult.push_back(qnode.node);
         build(qnode.node);
@@ -617,7 +585,7 @@ std::stack<Node*> SearchTree::uniformSearch() {
         }
         if(qnode.node->getId() == 4032){
             Node* x = qnode.node;
-            solution = true;
+            //solution = true;
             while (x != nullptr) {
                 solutionPath.push(x);
                 if (x->getParent() != nullptr) {
@@ -633,19 +601,7 @@ std::stack<Node*> SearchTree::uniformSearch() {
     }
 
     ///organizando a árvore pelo rank
-    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
-
-    outputFile << "\t{rank = same";
-    for(int i = 0; i < searchResult.size(); i++){
-        if (i != 0){
-            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
-                outputFile << "};" <<  std::endl << "\t{rank = same";
-        }
-        outputFile << "; "<< searchResult[i]->getState();
-    }
-
-
-    outputFile << "};" << std::endl << "}";
+    rankDot(searchResult);
 
     return solutionPath;
 }
@@ -682,14 +638,13 @@ std::stack<Node*> SearchTree::AStarSearch() {
     std::vector<Node*> searchResult;
     std::priority_queue<QueueNode, std::vector<QueueNode>, compareAStar> queue;
     std::stack<Node*> solutionPath;
-    searchResult.push_back(root);
 
     struct QueueNode queueRoot(root, 0);
     queue.push(queueRoot);
 
-    bool solution = false;
+    //bool solution = false;
 
-    while(!solution && !queue.empty()){
+    while(!queue.empty()){ //&& !solution
         QueueNode qnode = queue.top();
         queue.pop();
         searchResult.push_back(qnode.node);
@@ -701,7 +656,7 @@ std::stack<Node*> SearchTree::AStarSearch() {
         }
         if(qnode.node->getId() == 4032){
             Node* x = qnode.node;
-            solution = true;
+            //solution = true;
             while (x != nullptr) {
                 solutionPath.push(x);
                 if (x->getParent() != nullptr) {
@@ -717,19 +672,7 @@ std::stack<Node*> SearchTree::AStarSearch() {
     }
 
     ///organizando a árvore pelo rank
-    std::sort(searchResult.begin(), searchResult.end(), compareNodes);
-
-    outputFile << "\t{rank = same";
-    for(int i = 0; i < searchResult.size(); i++){
-        if (i != 0){
-            if(searchResult[i-1]->getRank() !=  searchResult[i]->getRank())
-                outputFile << "};" <<  std::endl << "\t{rank = same";
-        }
-        outputFile << "; "<< searchResult[i]->getState();
-    }
-
-
-    outputFile << "};" << std::endl << "}";
+    rankDot(searchResult);
 
     return solutionPath;
 }
